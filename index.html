@@ -23,9 +23,20 @@
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
 	<link rel="icon" href="images/icon.jpg">
+	<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+	</script>
+	<script type="text/javascript">
+	(function(){
+		emailjs.init({
+			publicKey: "d0NlGJrBXAnKcSybQ",
+		});
+	})();
+	</script>
 	<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> -->
   </head>
   <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+	<main>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 
@@ -362,7 +373,8 @@
 
 	<div class="row no-gutters block-9">
 		<div class="col-md-6 order-md-last d-flex">
-			<form id="submit-form" action="" class="bg-light p-4 p-md-5 contact-form">
+			<form id="gform" method="POST" action="" class="bg-light p-4 p-md-5 contact-form">
+				<!-- https://script.google.com/macros/s/AKfycbye7SjF0gqlp1mPULhFKnITKYtBXaitXS9r1HHnRZAtdI_k3aIytJlkmV0vNVUYBLdS/exec -->
 				<div class="form-group">
 					<input type="text" id="name" name="name" class="form-control" placeholder="Your Name"> <!-- Added name="name" -->
 					<span class="error" id="nameError" style="color:red;"></span>
@@ -378,6 +390,7 @@
 					<textarea name="message" id="message" cols="30" rows="7" class="form-control" placeholder="Message"></textarea> <!-- Added name="message" -->
 				</div>
 				<div class="form-group">
+
 					<input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
 				</div>
 			</form>
@@ -454,7 +467,7 @@
 
   <!-- loader -->
   <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
-
+</main>
 
   <script src="js/jquery.min.js"></script>
   <script src="js/jquery-migrate-3.0.1.min.js"></script>
@@ -473,56 +486,86 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
   <script>
-    $("#submit-form").submit((e) => {
-        e.preventDefault(); // Prevent form submission
-
-        let valid = true; // Validation flag
-
-        const name = $("#name").val();
-        const email = $("#email").val();
-        const subject = $("#subject").val();
-        const message = $("#message").val();
-
-        const namePattern = /^[a-zA-Z\s]+$/; // Name validation pattern
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; // Email validation pattern
-
-        // Name validation
-        if (!namePattern.test(name)) {
-            $("#nameError").text("Name should not contain numbers or special characters.");
-            valid = false;
-        } else {
-            $("#nameError").text("");
-        }
-
-        // Email validation
-        if (!emailPattern.test(email)) {
-            $("#emailError").text("Please enter a valid email address.");
-            valid = false;
-        } else {
-            $("#emailError").text("");
-        }
-
-        if (valid) {
-            $.ajax({
-                url: "https://script.google.com/macros/s/AKfycbw-7MT-TU8kC6oHh5w8ZGDbXoNLvep3tu4JpI_SkAd0KWu6v8gF07z8gytog2F71AJf/exec",
-                data: {
-                    name: name,
-                    email: email,
-                    subject: subject,
-                    message: message
-                },
-                method: "POST",
-                success: function (response) {
-                    alert("Form submitted successfully");
-                    window.location.reload();
-                },
-                error: function (err) {
-                    alert("Something went wrong. Please try again.");
-                }
-            });
-        }
-    });
-</script>
+	document.getElementById("name").addEventListener("input", function () {
+	  let name = this.value.trim();
+	  let nameError = document.getElementById("nameError");
+	  let namePattern = /^[A-Za-z\s]+$/; // Allows only letters and spaces
+  
+	  if (name === "") {
+		nameError.textContent = "Name is required.";
+	  } else if (!namePattern.test(name)) {
+		nameError.textContent = "Only letters are allowed in the name.";
+	  } else {
+		nameError.textContent = ""; // Clear error if valid
+	  }
+	});
+  
+	document.getElementById("email").addEventListener("input", function () {
+	  let email = this.value.trim();
+	  let emailError = document.getElementById("emailError");
+	  let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+	  if (email === "") {
+		emailError.textContent = "Email is required.";
+	  } else if (!emailPattern.test(email)) {
+		emailError.textContent = "Enter a valid email address.";
+	  } else {
+		emailError.textContent = ""; // Clear error if valid
+	  }
+	});
+  
+	document.getElementById("gform").addEventListener("submit", function (event) {
+	  let isValid = true;
+  
+	  // Get form fields
+	  let name = document.getElementById("name").value.trim();
+	  let email = document.getElementById("email").value.trim();
+	  let message = document.getElementById("message").value.trim();
+  
+	  // Get error message elements
+	  let nameError = document.getElementById("nameError");
+	  let emailError = document.getElementById("emailError");
+  
+	  // Reset error messages
+	  nameError.textContent = "";
+	  emailError.textContent = "";
+  
+	  // Name validation
+	  let namePattern = /^[A-Za-z\s]+$/;
+	  if (name === "") {
+		nameError.textContent = "Name is required.";
+		isValid = false;
+	  } else if (!namePattern.test(name)) {
+		nameError.textContent = "Only letters are allowed in the name.";
+		isValid = false;
+	  }
+  
+	  // Email validation
+	  let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	  if (email === "") {
+		emailError.textContent = "Email is required.";
+		isValid = false;
+	  } else if (!emailPattern.test(email)) {
+		emailError.textContent = "Enter a valid email address.";
+		isValid = false;
+	  }
+  
+	  // Message validation
+	  if (message === "") {
+		alert("Message is required.");
+		isValid = false;
+	  }
+  
+	  // Prevent form submission if validation fails
+	  if (!isValid) {
+		event.preventDefault();
+	  }
+	});
+  </script>
+  <script src="email.js"></script>
+  
+  
+  
 
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script> -->
   </body>
